@@ -2,12 +2,16 @@ const express = require("express");
 const router = express.Router();
 const Appointment = require("../models/Appointment");
 const Prescription = require("../models/Prescription");
+const Doctor = require("../models/Doctor");
 
-// Get doctor's appointments
+const mongoose = require("mongoose");
+
 router.get("/appointments/:doctorId", async (req, res) => {
   try {
+    const doctorObjectId = new mongoose.Types.ObjectId(req.params.doctorId);
+
     const appointments = await Appointment.find({
-      doctorId: req.params.doctorId,
+      doctorId: doctorObjectId,
       status: { $in: ["confirmed", "checked-in"] },
     }).populate("patientId", "name");
 
@@ -47,12 +51,42 @@ router.post("/prescriptions", async (req, res) => {
 router.post("/slots/:doctorId", async (req, res) => {
   try {
     const { date, time } = req.body;
+    const doc = await Doctor.findOneAndUpdate(
+      { userId: req.params.doctorId },
+      { $push: { availableSlots: { date, time, isBooked: false } } }
+    );
+    console.log(doc);
+    res.status(201).json({ message: "Slot added successfully" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
-    await Doctor.findByIdAndUpdate(req.params.doctorId, {
-      $push: { availableSlots: { date, time, isBooked: false } },
+router.get("/slots/:doctorId", async (req, res) => {
+  try {
+    const doctor = await Doctor.findOne(
+      { userId: req.params.doctorId },
+      { availableSlots: 1 }
+    );
+
+    if (!doctor) {
+      return res.status(404).json({ message: "Doctor not found" });
+    }
+
+    // Group slots by date
+    const slotsByDate = {};
+    doctor.availableSlots.forEach((slot) => {
+      if (!slot.isBooked) {
+        // Only include available slots
+        const dateStr = slot.date.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+        if (!slotsByDate[dateStr]) {
+          slotsByDate[dateStr] = [];
+        }
+        slotsByDate[dateStr].push(slot.time);
+      }
     });
 
-    res.status(201).json({ message: "Slot added successfully" });
+    res.status(200).json(slotsByDate);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

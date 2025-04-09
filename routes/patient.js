@@ -10,9 +10,20 @@ router.get("/doctors/:specialization", async (req, res) => {
     const doctors = await Doctor.find({
       specialization: req.params.specialization,
       approved: true,
-    }).populate("userId", "name");
+      userId: { $ne: null }, // Only include doctors with a valid user reference
+    }).populate({
+      path: "userId",
+      select: "name", // Only select the name field from User
+      model: "User", // Make sure this matches your User model name
+    });
 
-    res.json(doctors);
+    // Transform the data to include the name directly in the response
+    const doctorsWithNames = doctors.map((doctor) => ({
+      ...doctor.toObject(),
+      name: doctor.userId?.name || "Unknown",
+    }));
+
+    res.json(doctorsWithNames);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -38,16 +49,20 @@ router.get("/slots/:doctorId", async (req, res) => {
 // Book appointment
 router.post("/appointments", async (req, res) => {
   try {
-    const { patientId, doctorId, date, time, reason } = req.body;
+    const { patientId, doctorId, date, time, age, gender, reason, phone } =
+      req.body;
 
     // Create appointment
     const appointment = new Appointment({
       patientId,
       doctorId,
+      age,
+      gender,
+      phone,
       date,
       time,
       reason,
-      status: "pending",
+      status: "confirmed",
     });
     await appointment.save();
 
@@ -72,9 +87,14 @@ router.get("/appointments/:patientId", async (req, res) => {
   try {
     const appointments = await Appointment.find({
       patientId: req.params.patientId,
-    })
-      .populate("doctorId", "userId specialization")
-      .populate("doctorId.userId", "name");
+    }).populate({
+      path: "doctorId",
+      select: "userId specialization",
+      populate: {
+        path: "userId",
+        select: "name",
+      },
+    });
 
     res.json(appointments);
   } catch (error) {
@@ -82,16 +102,35 @@ router.get("/appointments/:patientId", async (req, res) => {
   }
 });
 
-// Get patient prescriptions
 router.get("/prescriptions/:patientId", async (req, res) => {
   try {
     const prescriptions = await Prescription.find({
       patientId: req.params.patientId,
-    })
-      .populate("doctorId", "userId")
-      .populate("doctorId.userId", "name");
+    }).populate({
+      path: "doctorId",
+      select: "name",
+      model: "User",
+    });
 
     res.json(prescriptions);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/prescriptions/bill/:patientId", async (req, res) => {
+  try {
+    const prescriptions = await Prescription.find({
+      patientId: req.params.patientId,
+      bill: { $exists: true }, // Only prescriptions with bills
+    }).select("_id bill"); // Only return _id and bill fields
+
+    res.json(
+      prescriptions.map((p) => ({
+        prescriptionId: p._id,
+        bill: p.bill,
+      }))
+    );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

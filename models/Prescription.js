@@ -21,13 +21,16 @@ const prescriptionSchema = new mongoose.Schema({
       name: { type: String, required: true },
       dosage: { type: String, required: true },
       duration: { type: String, required: true },
+      // price: { type: Number },
     },
   ],
   tests: [
     {
       name: { type: String, required: true },
+      // price: { type: Number },
     },
   ],
+  bill: { type: Object },
   notes: { type: String },
   createdAt: { type: Date, default: Date.now },
 });

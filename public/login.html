@@ -4,601 +4,307 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MedElite - Login/Signup</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="login.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
     />
     <style>
-      .auth-gradient {
-        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-      }
-      .tab-active {
-        color: #2563eb;
-        border-bottom: 2px solid #2563eb;
-      }
-      .form-appear {
-        animation: fadeIn 0.5s ease-in-out;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
+      .form-control {
+        padding: 8px 12px;
       }
     </style>
   </head>
-  <body class="font-sans bg-gray-100 min-h-screen flex flex-col">
-    <!-- Header -->
-    <header class="bg-white shadow-md w-full">
-      <div
-        class="container mx-auto px-4 py-3 flex justify-between items-center"
-      >
-        <a href="index.html" class="flex items-center">
-          <i class="fas fa-hospital text-blue-600 text-3xl mr-2"></i>
-          <h1 class="text-2xl font-bold text-blue-600">MedElite</h1>
-        </a>
-
-        <button class="md:hidden text-gray-700" id="mobile-menu-button">
-          <i class="fas fa-bars text-xl"></i>
-        </button>
-      </div>
-
-      <!-- Mobile Navigation -->
-      <div
-        class="md:hidden hidden bg-white w-full py-3 px-4 shadow-md"
-        id="mobile-menu"
-      ></div>
+  <body>
+    <header class="header">
+      <a href="#" class="logo">
+        <i class="fas fa-hospital-alt"></i>
+        <span>MedElite</span>
+      </a>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-grow flex items-center justify-center py-12 px-4">
-      <div
-        class="w-full max-w-6xl flex flex-col md:flex-row bg-white rounded-xl shadow-xl overflow-hidden"
-      >
-        <!-- Left Side - Image and Info -->
-        <div
-          class="md:w-1/2 auth-gradient p-8 md:p-12 text-white flex flex-col justify-between"
-        >
-          <div>
-            <h2 class="text-3xl font-bold mb-6">Welcome to MedElite</h2>
-            <p class="text-blue-100 mb-8">
-              Access your healthcare portal to manage appointments, view medical
-              records, and connect with healthcare professionals.
-            </p>
-
-            <div class="space-y-6">
-              <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
-                  <i class="fas fa-user-md text-white"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold">For Doctors</h4>
-                  <p class="text-blue-100 text-sm">
-                    Access patient records, manage appointments, and update
-                    treatment plans
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
-                  <i class="fas fa-user text-white"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold">For Patients</h4>
-                  <p class="text-blue-100 text-sm">
-                    Book appointments, view medical history, and access test
-                    results
-                  </p>
-                </div>
-              </div>
-
-              <div class="flex items-start">
-                <div class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
-                  <i class="fas fa-user-nurse text-white"></i>
-                </div>
-                <div>
-                  <h4 class="font-semibold">For Receptionists</h4>
-                  <p class="text-blue-100 text-sm">
-                    Manage scheduling, patient registration, and administrative
-                    tasks
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-12">
-            <div class="bg-white bg-opacity-10 p-4 rounded-lg">
-              <h4 class="font-semibold mb-2">Need Assistance?</h4>
-              <p class="text-sm text-blue-100 mb-3">
-                Contact our support team for help with your account.
-              </p>
-              <div class="flex items-center">
-                <i class="fas fa-phone-alt mr-2"></i>
-                <span>(123) 456-7890</span>
-              </div>
-            </div>
+    <main class="main-content">
+      <div class="auth-container">
+        <!-- Left Side - Info -->
+        <div class="auth-info">
+          <h2>Healthcare Portal</h2>
+          <p>Sign in or register to access your account.</p>
+          <div class="illustration">
+            <i class="fas fa-heartbeat"></i>
           </div>
         </div>
 
-        <!-- Right Side - Login/Signup Forms -->
-        <div class="md:w-1/2 p-8 md:p-12">
-          <div class="mb-8 flex border-b">
-            <button
-              id="login-tab"
-              class="w-1/2 py-3 text-center font-medium tab-active"
-            >
-              Login
-            </button>
-            <button
-              id="signup-tab"
-              class="w-1/2 py-3 text-center font-medium text-gray-500"
-            >
-              Signup
-            </button>
+        <!-- Right Side - Forms -->
+        <div class="auth-forms">
+          <div class="form-tabs">
+            <button id="login-tab" class="tab-button active">Login</button>
+            <button id="signup-tab" class="tab-button">Signup</button>
           </div>
 
           <!-- Login Form -->
-          <div id="login-form" class="form-appear">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-6">
-              Login to Your Account
-            </h3>
-
-            <div class="mb-6">
-              <label class="block text-gray-700 mb-2" for="login-role"
-                >I am a</label
-              >
+          <form id="loginForm" class="form-container active" novalidate>
+            <div class="form-group">
+              <label>Role</label>
               <select
                 id="login-role"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-control"
+                required
+                title="Please select your role"
               >
+                <option value="">Select Role</option>
                 <option value="patient">Patient</option>
                 <option value="doctor">Doctor</option>
                 <option value="receptionist">Receptionist</option>
               </select>
             </div>
-
-            <form>
-              <div class="space-y-4">
-                <div>
-                  <label class="block text-gray-700 mb-2" for="login-email"
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    id="login-email"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-gray-700 mb-2" for="login-password"
-                    >Password</label
-                  >
-                  <div class="relative">
-                    <input
-                      type="password"
-                      id="login-password"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="••••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                    >
-                      <i class="far fa-eye"></i>
-                    </button>
-                  </div>
-                </div>
-
-                <div class="flex justify-between items-center">
-                  <div class="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="remember-me"
-                      class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                    <label
-                      for="remember-me"
-                      class="ml-2 block text-sm text-gray-700"
-                      >Remember me</label
-                    >
-                  </div>
-
-                  <a href="#" class="text-sm text-blue-600 hover:text-blue-800"
-                    >Forgot password?</a
-                  >
-                </div>
-
-                <button
-                  type="submit"
-                  class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition duration-300"
-                >
-                  Login
-                </button>
-              </div>
-            </form>
-
-            <div class="mt-6">
-              <div class="relative">
-                <div class="absolute inset-0 flex items-center">
-                  <div class="w-full border-t border-gray-300"></div>
-                </div>
-                <div class="relative flex justify-center text-sm">
-                  <span class="px-2 bg-white text-gray-500"
-                    >Or continue with</span
-                  >
-                </div>
-              </div>
-
-              <div class="mt-6 grid grid-cols-2 gap-3">
-                <a
-                  href="#"
-                  class="py-2 px-4 border border-gray-300 rounded-lg flex justify-center items-center text-gray-700 hover:bg-gray-50 transition duration-300"
-                >
-                  <i class="fab fa-google text-red-500 mr-2"></i>
-                  Google
-                </a>
-                <a
-                  href="#"
-                  class="py-2 px-4 border border-gray-300 rounded-lg flex justify-center items-center text-gray-700 hover:bg-gray-50 transition duration-300"
-                >
-                  <i class="fab fa-facebook-f text-blue-600 mr-2"></i>
-                  Facebook
-                </a>
-              </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                id="login-email"
+                class="form-control"
+                placeholder="Enter email"
+                required
+                title="Please enter a valid email address"
+              />
             </div>
-          </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                id="login-password"
+                class="form-control"
+                placeholder="••••••••"
+                required
+                minlength="6"
+                title="Password must be at least 6 characters"
+              />
+            </div>
+            <button type="submit" class="submit-button">Login</button>
+          </form>
 
-          <!-- Signup Form (hidden by default) -->
-          <div id="signup-form" class="hidden form-appear">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-6">
-              Create an Account
-            </h3>
-
-            <div class="mb-6">
-              <label class="block text-gray-700 mb-2" for="signup-role"
-                >I want to register as a</label
-              >
+          <!-- Signup Form -->
+          <form id="signupForm" class="form-container hidden" novalidate>
+            <div class="form-group">
+              <label>Registering as</label>
               <select
                 id="signup-role"
-                class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                class="form-control"
+                required
+                title="Please select your role"
               >
+                <option value="">Select Role</option>
                 <option value="patient">Patient</option>
-                <option value="doctor">Doctor (Requires Approval)</option>
-                <option value="receptionist">
-                  Receptionist (Requires Approval)
-                </option>
+                <option value="doctor">Doctor</option>
+                <option value="receptionist">Receptionist</option>
               </select>
             </div>
-
-            <form>
-              <div class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-gray-700 mb-2" for="first-name"
-                      >First Name</label
-                    >
-                    <input
-                      type="text"
-                      id="first-name"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="John"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-gray-700 mb-2" for="last-name"
-                      >Last Name</label
-                    >
-                    <input
-                      type="text"
-                      id="last-name"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Doe"
-                      required
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-gray-700 mb-2" for="signup-email"
-                    >Email</label
-                  >
-                  <input
-                    type="email"
-                    id="signup-email"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-gray-700 mb-2" for="phone-number"
-                    >Phone Number</label
-                  >
-                  <input
-                    type="tel"
-                    id="phone-number"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="(123) 456-7890"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label class="block text-gray-700 mb-2" for="signup-password"
-                    >Password</label
-                  >
-                  <div class="relative">
-                    <input
-                      type="password"
-                      id="signup-password"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="••••••••"
-                      required
-                    />
-                    <button
-                      type="button"
-                      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-                    >
-                      <i class="far fa-eye"></i>
-                    </button>
-                  </div>
-                  <p class="text-xs text-gray-500 mt-1">
-                    Must be at least 8 characters with one uppercase, one
-                    lowercase, and one number
-                  </p>
-                </div>
-
-                <div>
-                  <label class="block text-gray-700 mb-2" for="confirm-password"
-                    >Confirm Password</label
-                  >
-                  <input
-                    type="password"
-                    id="confirm-password"
-                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="••••••••"
-                    required
-                  />
-                </div>
-
-                <div class="flex items-start">
-                  <input
-                    type="checkbox"
-                    id="terms"
-                    class="h-4 w-4 mt-1 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label for="terms" class="ml-2 block text-sm text-gray-700">
-                    I agree to the
-                    <a href="#" class="text-blue-600 hover:text-blue-800"
-                      >Terms of Service</a
-                    >
-                    and
-                    <a href="#" class="text-blue-600 hover:text-blue-800"
-                      >Privacy Policy</a
-                    >
-                  </label>
-                </div>
-
-                <!-- Doctor-specific fields (hidden by default) -->
-                <div
-                  id="doctor-fields"
-                  class="hidden space-y-4 border-t border-b py-4 my-4"
-                >
-                  <h4 class="font-medium text-gray-800">
-                    Professional Information
-                  </h4>
-
-                  <div>
-                    <label class="block text-gray-700 mb-2" for="specialty"
-                      >Medical Specialty</label
-                    >
-                    <select
-                      id="specialty"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="" disabled selected>
-                        Select specialty
-                      </option>
-                      <option value="cardiology">Cardiology</option>
-                      <option value="dermatology">Dermatology</option>
-                      <option value="neurology">Neurology</option>
-                      <option value="orthopedics">Orthopedics</option>
-                      <option value="pediatrics">Pediatrics</option>
-                      <option value="general">General Medicine</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label class="block text-gray-700 mb-2" for="license"
-                      >Medical License Number</label
-                    >
-                    <input
-                      type="text"
-                      id="license"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="License number"
-                    />
-                  </div>
-
-                  <div>
-                    <label class="block text-gray-700 mb-2" for="experience"
-                      >Years of Experience</label
-                    >
-                    <input
-                      type="number"
-                      id="experience"
-                      class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="Years of experience"
-                      min="0"
-                    />
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition duration-300"
-                >
-                  Create Account
-                </button>
-              </div>
-            </form>
-          </div>
+            <div class="form-group">
+              <label>Full Name</label>
+              <input
+                type="text"
+                id="signup-name"
+                class="form-control"
+                placeholder="Dr. John Doe"
+                required
+                pattern="^[a-zA-Z ]+"
+                title="Only letters and spaces allowed (e.g. Dr. John Doe)"
+              />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input
+                type="email"
+                id="signup-email"
+                class="form-control"
+                placeholder="john@example.com"
+                required
+                title="Please enter a valid email address"
+              />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input
+                type="password"
+                id="signup-password"
+                class="form-control"
+                placeholder="••••••••"
+                required
+                minlength="6"
+                pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{6,}$"
+                title="Must contain: 1 number, 1 uppercase, 1 lowercase letter, 1 special character, and at least 6 characters"
+              />
+            </div>
+            <div class="form-group hidden" id="doctor-fields">
+              <label>Specialization</label>
+              <select
+                id="signup-specialization"
+                class="form-control"
+                title="Please select your specialization"
+              >
+                <option value="">Select Specialization</option>
+                <option value="Cardiology">Cardiology</option>
+                <option value="Dermatology">Dermatology</option>
+                <option value="Endocrinology">Endocrinology</option>
+                <option value="Gastroenterology">Gastroenterology</option>
+                <option value="Hematology">Hematology</option>
+                <option value="Neurology">Neurology</option>
+                <option value="Oncology">Oncology</option>
+                <option value="Pediatrics">Pediatrics</option>
+                <option value="Psychiatry">Psychiatry</option>
+                <option value="Radiology">Radiology</option>
+                <option value="Surgery">Surgery</option>
+                <option value="Urology">Urology</option>
+                <option value="General Practitioner">
+                  General Practitioner
+                </option>
+              </select>
+              <br /><br />
+              <label>License Number</label>
+              <input
+                type="text"
+                id="signup-license"
+                class="form-control"
+                placeholder="123456"
+                pattern="^[A-Za-z0-9\-]+$"
+                title="Please enter a valid license number (letters, numbers, and hyphens only)"
+              />
+            </div>
+            <button type="submit" class="submit-button">Sign Up</button>
+          </form>
         </div>
       </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-6">
-      <div class="container mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-between items-center">
-          <div class="flex items-center mb-4 md:mb-0">
-            <i class="fas fa-hospital text-blue-400 text-2xl mr-2"></i>
-            <h3 class="text-xl font-bold text-white">MedElite</h3>
-          </div>
-
-          <div class="flex flex-wrap justify-center mb-4 md:mb-0">
-            <a
-              href="index.html"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >Home</a
-            >
-            <a
-              href="index.html#about"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >About</a
-            >
-            <a
-              href="index.html#services"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >Services</a
-            >
-            <a
-              href="index.html#contact"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >Contact</a
-            >
-            <a
-              href="#"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >Privacy Policy</a
-            >
-            <a
-              href="#"
-              class="px-3 py-1 text-gray-400 hover:text-white transition duration-300"
-              >Terms of Service</a
-            >
-          </div>
-
-          <div class="flex space-x-4">
-            <a
-              href="#"
-              class="text-gray-400 hover:text-white transition duration-300"
-            >
-              <i class="fab fa-facebook-f"></i>
-            </a>
-            <a
-              href="#"
-              class="text-gray-400 hover:text-white transition duration-300"
-            >
-              <i class="fab fa-twitter"></i>
-            </a>
-            <a
-              href="#"
-              class="text-gray-400 hover:text-white transition duration-300"
-            >
-              <i class="fab fa-instagram"></i>
-            </a>
-            <a
-              href="#"
-              class="text-gray-400 hover:text-white transition duration-300"
-            >
-              <i class="fab fa-linkedin-in"></i>
-            </a>
-          </div>
-        </div>
-
-        <div class="mt-4 text-center text-gray-400 text-sm">
-          <p>&copy; 2025 MedElite. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
-
-    <!-- JavaScript -->
     <script>
-      // Mobile menu toggle
-      const mobileMenuButton = document.getElementById("mobile-menu-button");
-      const mobileMenu = document.getElementById("mobile-menu");
-
-      mobileMenuButton.addEventListener("click", () => {
-        mobileMenu.classList.toggle("hidden");
+      // Tab switching
+      document.getElementById("login-tab").addEventListener("click", () => {
+        switchTab("login");
       });
 
-      // Login/Signup tabs
-      const loginTab = document.getElementById("login-tab");
-      const signupTab = document.getElementById("signup-tab");
-      const loginForm = document.getElementById("login-form");
-      const signupForm = document.getElementById("signup-form");
-
-      loginTab.addEventListener("click", () => {
-        loginTab.classList.add("tab-active");
-        signupTab.classList.remove("tab-active");
-        signupTab.classList.add("text-gray-500");
-        loginForm.classList.remove("hidden");
-        signupForm.classList.add("hidden");
+      document.getElementById("signup-tab").addEventListener("click", () => {
+        switchTab("signup");
       });
 
-      signupTab.addEventListener("click", () => {
-        signupTab.classList.add("tab-active");
-        signupTab.classList.remove("text-gray-500");
-        loginTab.classList.remove("tab-active");
-        signupForm.classList.remove("hidden");
-        loginForm.classList.add("hidden");
-      });
+      function switchTab(tabName) {
+        document.querySelectorAll(".form-container").forEach((form) => {
+          form.classList.add("hidden");
+          form.classList.remove("active");
+        });
+        document.getElementById(`${tabName}Form`).classList.remove("hidden");
+        document.getElementById(`${tabName}Form`).classList.add("active");
+
+        document.querySelectorAll(".tab-button").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document.getElementById(`${tabName}-tab`).classList.add("active");
+      }
 
       // Show/hide doctor fields based on role selection
-      const signupRole = document.getElementById("signup-role");
-      const doctorFields = document.getElementById("doctor-fields");
+      document
+        .getElementById("signup-role")
+        .addEventListener("change", function () {
+          const doctorFields = document.getElementById("doctor-fields");
+          const specialization = document.getElementById(
+            "signup-specialization"
+          );
+          const license = document.getElementById("signup-license");
 
-      signupRole.addEventListener("change", () => {
-        if (signupRole.value === "doctor") {
-          doctorFields.classList.remove("hidden");
-        } else {
-          doctorFields.classList.add("hidden");
-        }
-      });
-
-      // Password visibility toggle
-      const passwordToggles = document.querySelectorAll(".fa-eye");
-
-      passwordToggles.forEach((toggle) => {
-        toggle.addEventListener("click", () => {
-          const passwordField = toggle.parentElement.previousElementSibling;
-
-          if (passwordField.type === "password") {
-            passwordField.type = "text";
-            toggle.classList.remove("fa-eye");
-            toggle.classList.add("fa-eye-slash");
+          if (this.value === "doctor") {
+            doctorFields.classList.remove("hidden");
+            specialization.required = true;
+            license.required = true;
           } else {
-            passwordField.type = "password";
-            toggle.classList.remove("fa-eye-slash");
-            toggle.classList.add("fa-eye");
+            doctorFields.classList.add("hidden");
+            specialization.required = false;
+            license.required = false;
           }
         });
-      });
+
+      // Validation
+      function validateForm(form) {
+        const inputs = Array.from(form.querySelectorAll("input, select"));
+        for (const input of inputs) {
+          if (!input.checkValidity()) {
+            alert(input.title || "Please fill this field correctly");
+            input.focus();
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // Login submit
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!validateForm(e.target)) return;
+
+          try {
+            const response = await fetch("/api/auth/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                email: document.getElementById("login-email").value,
+                password: document.getElementById("login-password").value,
+                role: document.getElementById("login-role").value,
+              }),
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+              localStorage.setItem("token", data.token);
+              window.location.href = `/${data.user.role}`;
+            } else {
+              alert(data.error || "Login failed");
+            }
+          } catch (error) {
+            alert("Network error. Please try again.");
+          }
+        });
+
+      // Signup submit
+      document
+        .getElementById("signupForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          if (!validateForm(e.target)) return;
+
+          try {
+            const formData = {
+              name: document.getElementById("signup-name").value,
+              email: document.getElementById("signup-email").value,
+              password: document.getElementById("signup-password").value,
+              role: document.getElementById("signup-role").value,
+              specialization:
+                document.getElementById("signup-role").value === "doctor"
+                  ? document.getElementById("signup-specialization").value
+                  : null,
+              licenseNumber:
+                document.getElementById("signup-role").value === "doctor"
+                  ? document.getElementById("signup-license").value
+                  : null,
+            };
+
+            const response = await fetch("/api/auth/signup", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(formData),
+            });
+
+            if (response.ok) {
+              alert("Account created successfully!");
+              switchTab("login");
+              e.target.reset();
+            } else {
+              const data = await response.json();
+              alert(data.error || "Signup failed");
+            }
+          } catch (error) {
+            alert("Network error. Please try again.");
+          }
+        });
     </script>
   </body>
 </html>

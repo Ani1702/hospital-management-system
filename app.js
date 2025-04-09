@@ -21,6 +21,7 @@ app.use("/api/patient", patientRoutes);
 app.use("/api/doctor", doctorRoutes);
 app.use("/api/receptionist", receptionistRoutes);
 app.use("/", frontendRoutes);
+app.use(express.static("public"));
 
 // MongoDB connection
 mongoose
