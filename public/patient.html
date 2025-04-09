@@ -43,7 +43,7 @@
             </li>
             <li>
               <a href="#upload">
-                <i class="fas fa-upload"></i><span>Upload Reports</span>
+                <!-- <i class="fas fa-upload"></i><span>Upload Reports</span> -->
               </a>
             </li>
           </ul>
@@ -321,13 +321,20 @@
             addressInput.value = userData.address;
           }
         }
-
         // Populate medical fields dropdown (hardcoded for simplicity)
         const medicalFields = [
           "General Practitioner",
           "Cardiology",
           "Neurology",
           "Orthopedics",
+          "Dermatology",
+          "Surgery",
+          "Neurology",
+          "Pediatrics",
+          "Radiology",
+          "Urology",
+          "Cardiology",
+          "Gastroenterology",
         ];
         medicalFields.forEach((field) => {
           const option = document.createElement("option");
@@ -565,7 +572,7 @@
                 );
                 actionCell.appendChild(cancelBtn);
               } else {
-                actionCell.textContent = "No action";
+                actionCell.textContent = "N/A";
               }
 
               row.appendChild(dateCell);

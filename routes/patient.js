@@ -136,4 +136,53 @@ router.get("/prescriptions/bill/:patientId", async (req, res) => {
   }
 });
 
+// Delete appointment and restore doctor's availability
+router.delete("/appointments/:appointmentId", async (req, res) => {
+  try {
+    // Find the appointment first to get the details before deletion
+    const appointment = await Appointment.findById(
+      req.params.appointmentId
+    ).populate({
+      path: "doctorId",
+      select: "userId availableSlots",
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+
+    // Delete the appointment
+    await Appointment.findByIdAndDelete(req.params.appointmentId);
+
+    // Restore the doctor's availability for that time slot
+    if (appointment.doctorId && appointment.date && appointment.time) {
+      await Doctor.findByIdAndUpdate(appointment.doctorId._id, {
+        $push: {
+          availableSlots: {
+            date: appointment.date,
+            time: appointment.time,
+            isBooked: false,
+          },
+        },
+      });
+
+      // Alternatively, if you want to mark the existing slot as available instead of adding a new one:
+      // await Doctor.findOneAndUpdate(
+      //   {
+      //     _id: appointment.doctorId._id,
+      //     "availableSlots.date": appointment.date,
+      //     "availableSlots.time": appointment.time
+      //   },
+      //   { $set: { "availableSlots.$.isBooked": false } }
+      // );
+    }
+
+    res.json({
+      message: "Appointment deleted successfully and availability restored",
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
