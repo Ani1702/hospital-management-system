@@ -33,14 +33,12 @@
           </div>
         </div>
 
-        <!-- Right Side - Forms -->
         <div class="auth-forms">
           <div class="form-tabs">
             <button id="login-tab" class="tab-button active">Login</button>
             <button id="signup-tab" class="tab-button">Signup</button>
           </div>
 
-          <!-- Login Form -->
           <form id="loginForm" class="form-container active" novalidate>
             <div class="form-group">
               <label>Role</label>
@@ -82,7 +80,6 @@
             <button type="submit" class="submit-button">Login</button>
           </form>
 
-          <!-- Signup Form -->
           <form id="signupForm" class="form-container hidden" novalidate>
             <div class="form-group">
               <label>Registering as</label>
@@ -176,7 +173,6 @@
     </main>
 
     <script>
-      // Tab switching
       document.getElementById("login-tab").addEventListener("click", () => {
         switchTab("login");
       });
@@ -199,7 +195,6 @@
         document.getElementById(`${tabName}-tab`).classList.add("active");
       }
 
-      // Show/hide doctor fields based on role selection
       document
         .getElementById("signup-role")
         .addEventListener("change", function () {
@@ -232,7 +227,6 @@
         return true;
       }
 
-      
       document
         .getElementById("loginForm")
         .addEventListener("submit", async (e) => {
@@ -261,7 +255,6 @@
             alert("Network error. Please try again.");
           }
         });
-
 
       document
         .getElementById("signupForm")

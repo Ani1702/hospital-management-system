@@ -88,7 +88,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (selectedField) {
       try {
-        // Fetch doctors by specialization from our API
         const response = await fetch(
           `${API_BASE_URL}/patient/doctors/${encodeURIComponent(selectedField)}`
         );
@@ -100,7 +99,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Add doctor options
         doctors.forEach((doctor) => {
           const doctorOption = document.createElement("div");
           doctorOption.className = "doctor-option";

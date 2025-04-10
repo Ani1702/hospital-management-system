@@ -4,20 +4,18 @@ const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
 const Prescription = require("../models/Prescription");
 
-
 router.get("/doctors/:specialization", async (req, res) => {
   try {
     const doctors = await Doctor.find({
       specialization: req.params.specialization,
       approved: true,
-      userId: { $ne: null }, 
+      userId: { $ne: null },
     }).populate({
       path: "userId",
-      select: "name", 
-      model: "User", 
+      select: "name",
+      model: "User",
     });
 
-    
     const doctorsWithNames = doctors.map((doctor) => ({
       ...doctor.toObject(),
       name: doctor.userId?.name || "Unknown",
@@ -28,7 +26,6 @@ router.get("/doctors/:specialization", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 router.get("/slots/:doctorId", async (req, res) => {
   try {
@@ -46,13 +43,11 @@ router.get("/slots/:doctorId", async (req, res) => {
   }
 });
 
-
 router.post("/appointments", async (req, res) => {
   try {
     const { patientId, doctorId, date, time, age, gender, reason, phone } =
       req.body;
 
-    
     const appointment = new Appointment({
       patientId,
       doctorId,
@@ -120,8 +115,8 @@ router.get("/prescriptions/bill/:patientId", async (req, res) => {
   try {
     const prescriptions = await Prescription.find({
       patientId: req.params.patientId,
-      bill: { $exists: true }, 
-    }).select("_id bill"); 
+      bill: { $exists: true },
+    }).select("_id bill");
 
     res.json(
       prescriptions.map((p) => ({
@@ -134,10 +129,8 @@ router.get("/prescriptions/bill/:patientId", async (req, res) => {
   }
 });
 
-
 router.delete("/appointments/:appointmentId", async (req, res) => {
   try {
-    
     const appointment = await Appointment.findById(
       req.params.appointmentId
     ).populate({
@@ -149,10 +142,8 @@ router.delete("/appointments/:appointmentId", async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    
     await Appointment.findByIdAndDelete(req.params.appointmentId);
 
-    
     if (appointment.doctorId && appointment.date && appointment.time) {
       await Doctor.findByIdAndUpdate(appointment.doctorId._id, {
         $push: {
@@ -163,7 +154,6 @@ router.delete("/appointments/:appointmentId", async (req, res) => {
           },
         },
       });
-
     }
 
     res.json({

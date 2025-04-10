@@ -18,7 +18,7 @@
   </head>
   <body>
     <div class="container">
-      <!-- Sidebar -->
+     
       <div class="sidebar">
         <h2 class="logo">
           <i class="fas fa-hospital"></i>
@@ -41,16 +41,12 @@
                 <i class="fas fa-credit-card"></i><span>Billing</span>
               </a>
             </li>
-            <li>
-              <a href="#upload">
-                <!-- <i class="fas fa-upload"></i><span>Upload Reports</span> -->
-              </a>
-            </li>
+         
           </ul>
         </nav>
       </div>
 
-      <!-- Main Content -->
+      
       <div class="main-content">
         <header class="header">
           <div class="welcome">
@@ -68,7 +64,6 @@
             <span>View & Book Appointments</span>
           </h2>
 
-          <!-- Upcoming Appointments Table -->
           <div class="appointments-table">
             <h3>Your Appointments</h3>
             <table>
@@ -83,25 +78,24 @@
                 </tr>
               </thead>
               <tbody id="appointmentsTableBody">
-                <!-- Appointments will be populated by JavaScript -->
+                
               </tbody>
             </table>
           </div>
 
-          <!-- Appointment Form -->
           <div id="appointmentForm" class="appointment-form">
             <h3>Book an Appointment</h3>
 
-            <!-- Medical Specialty Selection -->
+       
             <div class="form-group">
               <label for="medicalField">Medical Field:</label>
               <select id="medicalField" required>
                 <option value="">Select a medical field</option>
-                <!-- Options will be populated by JavaScript -->
+              
               </select>
             </div>
 
-            <!-- Doctor Selection -->
+         
             <div
               id="doctorSelection"
               class="doctor-options"
@@ -109,7 +103,7 @@
             >
               <h4>Available Doctors:</h4>
               <div id="doctorOptionsContainer">
-                <!-- Doctor options will be populated by JavaScript -->
+              
               </div>
             </div>
 
@@ -118,20 +112,20 @@
               <label for="appointmentDate">Select Date:</label>
               <select id="appointmentDate" required>
                 <option value="">Select a date</option>
-                <!-- Dates will be populated by JavaScript -->
+               
               </select>
             </div>
 
-            <!-- Time Slot Selection -->
+          
             <div class="form-group" id="timeSlotGroup" style="display: none">
               <label for="appointmentTime">Select Time Slot:</label>
               <select id="appointmentTime" required>
                 <option value="">Select a time slot</option>
-                <!-- Time slots will be populated by JavaScript -->
+               
               </select>
             </div>
 
-            <!-- Age -->
+   
             <div class="form-group">
               <label for="age">Age:</label>
               <input
@@ -144,7 +138,7 @@
               />
             </div>
 
-            <!-- Gender -->
+      
             <div class="form-group">
               <label>Gender:</label>
               <div class="radio-group">
@@ -165,7 +159,6 @@
               </div>
             </div>
 
-            <!-- Phone -->
             <div class="form-group">
               <label for="phone">Phone:</label>
               <input
@@ -178,7 +171,7 @@
               />
             </div>
 
-            <!-- Address -->
+         
             <div class="form-group">
               <label for="address">Address:</label>
               <textarea
@@ -188,7 +181,7 @@
               ></textarea>
             </div>
 
-            <!-- Additional Details -->
+            
             <div class="form-group">
               <label for="reason">Reason for Appointment:</label>
               <textarea
@@ -198,7 +191,7 @@
               ></textarea>
             </div>
 
-            <!-- Submit Button -->
+        
             <div class="form-submit">
               <button id="submitAppointment">Submit</button>
             </div>
@@ -228,25 +221,15 @@
                 </tr>
               </thead>
               <tbody id="billingTableBody">
-                <!-- Billing data will be populated by JavaScript -->
+         
               </tbody>
             </table>
           </div>
           <div id="billDetails" class="bill-details" style="display: none">
-            <!-- Bill details will be populated by JavaScript -->
+          
           </div>
         </section>
-<!-- 
-        <section id="upload" class="card">
-          <h2>
-            <i class="fas fa-file-upload"></i> <span>Upload Reports</span>
-          </h2>
-          <div class="upload-container">
-            <input type="file" id="reportFile" />
-            <button class="upload-btn">
-              <i class="fas fa-upload"></i> <span>Upload</span>
-            </button>
-          </div> -->
+
         </section>
       </div>
     </div>
