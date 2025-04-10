@@ -13,7 +13,7 @@ router.get("/appointments/:doctorId", async (req, res) => {
     const appointments = await Appointment.find({
       doctorId: doctorObjectId,
       status: { $in: ["confirmed", "checked-in"] },
-    }).populate("patientId", "name");
+    }).populate("patientId", "name email");
 
     res.json(appointments);
   } catch (error) {

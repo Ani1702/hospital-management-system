@@ -1,52 +1,77 @@
-// Base API URL
 const API_BASE_URL = "http://localhost:5000/api";
 
-// DOM Elements
 const medicalFieldSelect = document.getElementById("medicalField");
 const doctorSelection = document.getElementById("doctorSelection");
 const doctorOptionsContainer = document.getElementById(
   "doctorOptionsContainer"
 );
+const dateGroup = document.getElementById("dateGroup");
 const appointmentDate = document.getElementById("appointmentDate");
 const timeSlotGroup = document.getElementById("timeSlotGroup");
 const appointmentTime = document.getElementById("appointmentTime");
 const submitButton = document.getElementById("submitAppointment");
-const appointmentsSection = document.getElementById("appointments");
-const historySection = document.getElementById("history");
-const billingSection = document.getElementById("billing");
+const welcomeMessage = document.getElementById("welcomeMessage");
+const phoneInput = document.getElementById("phone");
+const addressInput = document.getElementById("address");
+const appointmentsTableBody = document.getElementById("appointmentsTableBody");
 
-// Current user data (would be set after login)
 let currentUser = {
   id: null,
-  name: "Patient",
+  name: null,
+  email: null,
+  phone: null,
+  address: null,
   role: "patient",
 };
 
-// Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", function () {
-  // Try to get user data from session (simplified)
-  const userData = sessionStorage.getItem("userData");
-  if (userData) {
-    currentUser = JSON.parse(userData);
-    document.querySelector(
-      ".welcome span"
-    ).textContent = `Welcome, ${currentUser.name}`;
+  const tok = localStorage.token;
+
+  function parseJwt(token) {
+    try {
+      const base64Url = token.split(".")[1];
+      const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split("")
+          .map((c) => `%${("00" + c.charCodeAt(0).toString(16)).slice(-2)}`)
+          .join("")
+      );
+      return JSON.parse(jsonPayload);
+    } catch (e) {
+      return null;
+    }
   }
 
-  // Set minimum date (today) and maximum date (7 days from today)
-  const today = new Date();
-  const maxDate = new Date();
-  maxDate.setDate(today.getDate() + 7);
+  const userData = parseJwt(tok);
+  currentUser = userData;
 
-  appointmentDate.min = formatDateForInput(today);
-  appointmentDate.max = formatDateForInput(maxDate);
+  if (userData) {
+    welcomeMessage.textContent = `Welcome, ${userData.name}`;
+    loadPatientPrescriptions();
+    loadPatientAppointments();
 
-  // Populate medical fields dropdown (hardcoded for simplicity)
+    if (currentUser.phone) {
+      phoneInput.value = userData.phone;
+    }
+    if (currentUser.address) {
+      addressInput.value = userData.address;
+    }
+  }
+
   const medicalFields = [
     "General Practitioner",
     "Cardiology",
     "Neurology",
     "Orthopedics",
+    "Dermatology",
+    "Surgery",
+    "Neurology",
+    "Pediatrics",
+    "Radiology",
+    "Urology",
+    "Cardiology",
+    "Gastroenterology",
   ];
   medicalFields.forEach((field) => {
     const option = document.createElement("option");
@@ -55,10 +80,11 @@ document.addEventListener("DOMContentLoaded", function () {
     medicalFieldSelect.appendChild(option);
   });
 
-  // Handle medical field selection change
   medicalFieldSelect.addEventListener("change", async function () {
     const selectedField = this.value;
     doctorOptionsContainer.innerHTML = "";
+    dateGroup.style.display = "none";
+    timeSlotGroup.style.display = "none";
 
     if (selectedField) {
       try {
@@ -113,20 +139,46 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     } else {
       doctorSelection.style.display = "none";
-      timeSlotGroup.style.display = "none";
     }
   });
 
-  // Handle doctor selection change
-  doctorOptionsContainer.addEventListener("change", function (e) {
+  doctorOptionsContainer.addEventListener("change", async function (e) {
     if (e.target.name === "doctor") {
-      appointmentDate.disabled = false;
+      const doctorId = e.target.value;
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/patient/slots/${doctorId}`
+        );
+        const availableSlots = await response.json();
+
+        const uniqueDates = [
+          ...new Set(availableSlots.map((slot) => slot.date)),
+        ];
+
+        appointmentDate.innerHTML = '<option value="">Select a date</option>';
+        uniqueDates.forEach((date) => {
+          const option = document.createElement("option");
+          option.value = date;
+          option.textContent = new Date(date).toLocaleDateString();
+          appointmentDate.appendChild(option);
+        });
+
+        dateGroup.style.display = "block";
+        timeSlotGroup.style.display = "none";
+      } catch (error) {
+        console.error("Error fetching available dates:", error);
+        alert("Failed to load available dates. Please try again.");
+      }
     }
   });
 
-  // Handle date selection change
   appointmentDate.addEventListener("change", async function () {
-    if (!this.value) return;
+    const selectedDate = this.value;
+    if (!selectedDate) {
+      timeSlotGroup.style.display = "none";
+      return;
+    }
 
     const selectedDoctor = document.querySelector(
       'input[name="doctor"]:checked'
@@ -138,17 +190,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     try {
-      // Fetch available slots for selected doctor and date
       const response = await fetch(
         `${API_BASE_URL}/patient/slots/${selectedDoctor.value}`
       );
-      const availableSlots = await response.json();
+      const allSlots = await response.json();
 
-      // Clear previous time slots
+      const availableSlots = allSlots.filter(
+        (slot) => slot.date === selectedDate && !slot.isBooked
+      );
+
       appointmentTime.innerHTML =
         '<option value="">Select a time slot</option>';
 
-      // Add available time slots
       availableSlots.forEach((slot) => {
         const option = document.createElement("option");
         option.value = slot.time;
@@ -156,7 +209,6 @@ document.addEventListener("DOMContentLoaded", function () {
         appointmentTime.appendChild(option);
       });
 
-      // Show time slot selection
       timeSlotGroup.style.display = "block";
     } catch (error) {
       console.error("Error fetching time slots:", error);
@@ -164,25 +216,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Handle form submission
   submitButton.addEventListener("click", handleFormSubmit);
 
-  // Initialize billing section
   initializeBillingSection();
 
-  // Load patient data
-  if (currentUser.id) {
-    loadPatientAppointments();
-    loadPatientPrescriptions();
-  }
-
-  // Initialize logout button
   document.querySelector(".logout-btn").addEventListener("click", function () {
-    sessionStorage.removeItem("userData");
-    window.location.href = "login.html"; // Redirect to login page
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
   });
 
-  // Initialize upload button (simplified)
   document.querySelector(".upload-btn").addEventListener("click", function () {
     const fileInput = document.getElementById("reportFile");
     if (fileInput.files.length > 0) {
@@ -196,39 +238,114 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// Load patient appointments
 async function loadPatientAppointments() {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/patient/appointments/${currentUser.id}`
+      `${API_BASE_URL}/patient/appointments/${currentUser.userId}`
     );
     const appointments = await response.json();
 
-    const appointmentsInfo =
-      appointmentsSection.querySelector(".appointment-info");
+    appointmentsTableBody.innerHTML = "";
+
     if (appointments.length > 0) {
-      const nextAppointment = appointments.find(
-        (a) => a.status !== "completed"
-      );
-      if (nextAppointment) {
-        const apptDate = new Date(nextAppointment.date).toLocaleDateString();
-        appointmentsInfo.textContent = `Upcoming Appointment: ${apptDate} at ${nextAppointment.time} with Dr. ${nextAppointment.doctorId.userId.name}`;
-      } else {
-        appointmentsInfo.textContent = "No upcoming appointments";
-      }
+      appointments.forEach((appointment) => {
+        const row = document.createElement("tr");
+
+        const dateCell = document.createElement("td");
+        dateCell.textContent = new Date(appointment.date).toLocaleDateString();
+
+        const timeCell = document.createElement("td");
+        timeCell.textContent = appointment.time;
+
+        const doctorCell = document.createElement("td");
+        console.log(appointment);
+        doctorCell.textContent = `Dr. ${appointment.doctorId.userId.name}`;
+
+        const specialtyCell = document.createElement("td");
+        specialtyCell.textContent = appointment.doctorId.specialization;
+
+        const statusCell = document.createElement("td");
+        statusCell.textContent =
+          appointment.status.charAt(0).toUpperCase() +
+          appointment.status.slice(1);
+        statusCell.className = appointment.status;
+
+        const actionCell = document.createElement("td");
+        if (
+          appointment.status !== "completed" &&
+          appointment.status !== "cancelled"
+        ) {
+          const cancelBtn = document.createElement("button");
+          cancelBtn.className = "cancel-btn";
+          cancelBtn.textContent = "Cancel";
+          cancelBtn.addEventListener("click", () =>
+            cancelAppointment(appointment._id)
+          );
+          actionCell.appendChild(cancelBtn);
+        } else {
+          actionCell.textContent = "N/A";
+        }
+
+        row.appendChild(dateCell);
+        row.appendChild(timeCell);
+        row.appendChild(doctorCell);
+        row.appendChild(specialtyCell);
+        row.appendChild(statusCell);
+        row.appendChild(actionCell);
+
+        appointmentsTableBody.appendChild(row);
+      });
     } else {
-      appointmentsInfo.textContent = "No appointments scheduled";
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 6;
+      cell.textContent = "No appointments scheduled";
+      row.appendChild(cell);
+      appointmentsTableBody.appendChild(row);
     }
   } catch (error) {
     console.error("Error loading appointments:", error);
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 6;
+    cell.textContent = "Error loading appointments";
+    row.appendChild(cell);
+    appointmentsTableBody.appendChild(row);
   }
 }
 
-// Load patient prescriptions
+async function cancelAppointment(appointmentId) {
+  if (!confirm("Are you sure you want to cancel this appointment?")) {
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/patient/appointments/${appointmentId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to cancel appointment");
+    }
+
+    alert("Appointment cancelled successfully");
+    loadPatientAppointments();
+  } catch (error) {
+    console.error("Error cancelling appointment:", error);
+    alert("Failed to cancel appointment. Please try again.");
+  }
+}
+
 async function loadPatientPrescriptions() {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/patient/prescriptions/${currentUser.id}`
+      `${API_BASE_URL}/patient/prescriptions/${currentUser.userId}`
     );
     const prescriptions = await response.json();
 
@@ -243,7 +360,7 @@ async function loadPatientPrescriptions() {
         prescriptionDiv.className = "prescription-card";
 
         const date = new Date(prescription.createdAt).toLocaleDateString();
-        const doctorName = prescription.doctorId.userId.name;
+        const doctorName = prescription.doctorId.name;
 
         prescriptionDiv.innerHTML = `
           <h3>Prescription from Dr. ${doctorName} - ${date}</h3>
@@ -291,28 +408,27 @@ async function loadPatientPrescriptions() {
   }
 }
 
-// Handle form submission
 async function handleFormSubmit() {
-  // Get form elements
   const medicalField = document.getElementById("medicalField");
   const doctor = document.querySelector('input[name="doctor"]:checked');
   const appointmentDate = document.getElementById("appointmentDate");
   const appointmentTime = document.getElementById("appointmentTime");
-  const fullName = document.getElementById("fullName");
-  const email = document.getElementById("email");
+  const age = document.getElementById("age");
+  const gender = document.querySelector('input[name="gender"]:checked');
   const phone = document.getElementById("phone");
   const address = document.getElementById("address");
   const reason = document.getElementById("reason");
 
-  // Validate form
+  console.log(doctor);
+
   if (
     !validateForm(
       medicalField,
       doctor,
       appointmentDate,
       appointmentTime,
-      fullName,
-      email,
+      age,
+      gender,
       phone,
       address,
       reason
@@ -322,16 +438,21 @@ async function handleFormSubmit() {
   }
 
   try {
+    console.log(doctor);
     const response = await fetch(`${API_BASE_URL}/patient/appointments`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        patientId: currentUser.id,
+        patientId: currentUser.userId,
         doctorId: doctor.value,
         date: appointmentDate.value,
         time: appointmentTime.value,
+        age: age.value,
+        gender: gender.value,
+        phone: phone.value,
+        address: address.value,
         reason: reason.value,
       }),
     });
@@ -342,90 +463,16 @@ async function handleFormSubmit() {
 
     const appointment = await response.json();
     alert(
-      `Appointment booked successfully for ${appointmentDate.value} at ${appointmentTime.value}`
+      `Appointment booked successfully for ${new Date(
+        appointmentDate.value
+      ).toLocaleDateString()} at ${appointmentTime.value}`
     );
-    resetForm();
-    loadPatientAppointments(); // Refresh appointments list
+
+    loadPatientAppointments();
   } catch (error) {
     console.error("Error booking appointment:", error);
     alert("Failed to book appointment. Please try again.");
   }
-}
-
-// Initialize billing section with data from backend
-async function initializeBillingSection() {
-  try {
-    // In a real app, we would fetch bills from the backend
-    // For now, we'll use mock data that matches our backend structure
-    const billingTableBody = document.getElementById("billingTableBody");
-    const billDetails = document.getElementById("billDetails");
-
-    // Mock data that matches what the backend would return
-    const billingData = [
-      {
-        date: new Date("2025-02-15").toLocaleDateString(),
-        amount: "$50.00",
-        status: "paid",
-        bill: {
-          medicines: ["Medicine A - $20.00", "Medicine B - $15.00"],
-          tests: ["Blood Test - $10.00"],
-          otherCharges: ["Consultation Fee - $5.00"],
-        },
-      },
-      {
-        date: new Date("2025-01-10").toLocaleDateString(),
-        amount: "$30.00",
-        status: "pending",
-        bill: {
-          medicines: ["Medicine C - $15.00"],
-          tests: [],
-          otherCharges: ["Consultation Fee - $15.00"],
-        },
-      },
-    ];
-
-    // Populate billing table
-    billingData.forEach((bill) => {
-      const row = document.createElement("tr");
-
-      const dateCell = document.createElement("td");
-      dateCell.textContent = bill.date;
-
-      const amountCell = document.createElement("td");
-      amountCell.textContent = bill.amount;
-
-      const statusCell = document.createElement("td");
-      statusCell.textContent =
-        bill.status.charAt(0).toUpperCase() + bill.status.slice(1);
-      statusCell.className = bill.status;
-
-      const actionCell = document.createElement("td");
-      actionCell.className = "action-cell";
-
-      const viewButton = document.createElement("button");
-      viewButton.className = "viewBillBtn";
-      viewButton.textContent = "View Bill";
-      viewButton.addEventListener("click", () => showBillDetails(bill));
-
-      actionCell.appendChild(viewButton);
-      row.appendChild(dateCell);
-      row.appendChild(amountCell);
-      row.appendChild(statusCell);
-      row.appendChild(actionCell);
-
-      billingTableBody.appendChild(row);
-    });
-  } catch (error) {
-    console.error("Error initializing billing section:", error);
-  }
-}
-
-// Helper functions (unchanged from original)
-function formatDateForInput(date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 function validateForm(
@@ -433,13 +480,12 @@ function validateForm(
   doctor,
   appointmentDate,
   appointmentTime,
-  fullName,
-  email,
+  age,
+  gender,
   phone,
   address,
   reason
 ) {
-  // Same validation as before
   if (!medicalField.value) {
     alert("Please select a medical field");
     medicalField.focus();
@@ -463,15 +509,14 @@ function validateForm(
     return false;
   }
 
-  if (!fullName.value || !/^[A-Za-z ]+$/.test(fullName.value)) {
-    alert("Please enter a valid name (letters and spaces only)");
-    fullName.focus();
+  if (!age.value || age.value < 1 || age.value > 120) {
+    alert("Please enter a valid age between 1 and 120");
+    age.focus();
     return false;
   }
 
-  if (!email.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    alert("Please enter a valid email address");
-    email.focus();
+  if (!gender) {
+    alert("Please select your gender");
     return false;
   }
 
@@ -499,51 +544,133 @@ function validateForm(
 function resetForm() {
   document.getElementById("appointmentForm").reset();
   document.getElementById("doctorSelection").style.display = "none";
+  document.getElementById("dateGroup").style.display = "none";
   document.getElementById("timeSlotGroup").style.display = "none";
-  document.getElementById("appointmentDate").disabled = true;
+
+  if (currentUser.phone) {
+    document.getElementById("phone").value = currentUser.phone;
+  }
+  if (currentUser.address) {
+    document.getElementById("address").value = currentUser.address;
+  }
+}
+async function initializeBillingSection() {
+  try {
+    const billingTableBody = document.getElementById("billingTableBody");
+    const billDetails = document.getElementById("billDetails");
+
+    billingTableBody.innerHTML = "";
+
+    const billsResponse = await fetch(
+      `${API_BASE_URL}/patient/prescriptions/bill/${currentUser.userId}`
+    );
+
+    if (!billsResponse.ok) {
+      throw new Error("Failed to fetch bills");
+    }
+
+    const billsData = await billsResponse.json();
+
+    if (!billsData || billsData.length === 0) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 4;
+      cell.textContent = "No billing records found";
+      row.appendChild(cell);
+      billingTableBody.appendChild(row);
+      return;
+    }
+
+    billsData.forEach((billData) => {
+      if (!billData.bill) return;
+
+      const bill = billData.bill;
+      const date = new Date().toLocaleDateString();
+
+      const row = document.createElement("tr");
+
+      const dateCell = document.createElement("td");
+      dateCell.textContent = date;
+
+      const amountCell = document.createElement("td");
+      amountCell.textContent = `₹${bill.amount}`;
+
+      const statusCell = document.createElement("td");
+      statusCell.textContent = "Paid";
+      statusCell.className = "paid";
+
+      const actionCell = document.createElement("td");
+      actionCell.className = "action-cell";
+
+      const viewButton = document.createElement("button");
+      viewButton.className = "viewBillBtn";
+      viewButton.textContent = "View Bill";
+      viewButton.addEventListener("click", () => showBillDetails(bill, date));
+
+      actionCell.appendChild(viewButton);
+      row.appendChild(dateCell);
+      row.appendChild(amountCell);
+      row.appendChild(statusCell);
+      row.appendChild(actionCell);
+
+      billingTableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error loading billing data:", error);
+    const row = document.createElement("tr");
+    const cell = document.createElement("td");
+    cell.colSpan = 4;
+    cell.textContent = "Error loading billing information";
+    row.appendChild(cell);
+    billingTableBody.appendChild(row);
+  }
 }
 
-function showBillDetails(bill) {
+function showBillDetails(bill, date) {
   const billDetails = document.getElementById("billDetails");
 
   billDetails.innerHTML = `
-    <h3>Invoice Details - ${bill.date}</h3>
-    <p class="bill-description">Billing Breakdown:</p>
-    <div class="bill-items">
+  <h3>Invoice Details - ${date}</h3>
+  <p class="bill-description">Billing Breakdown:</p>
+  <div class="bill-items">
       ${
-        bill.bill.medicines.length > 0
+        bill.medicines && bill.medicines.length > 0
           ? `
-        <h4>Medicines</h4>
-        <ul>
-          ${bill.bill.medicines.map((item) => `<li>${item}</li>`).join("")}
-        </ul>
-      `
+              <h4>Medicines</h4>
+              <ul>
+                  ${bill.medicines
+                    .map((med) => `<li>${med.name} - ₹${med.price}</li>`)
+                    .join("")}
+              </ul>
+              `
           : ""
       }
       ${
-        bill.bill.tests.length > 0
+        bill.tests && bill.tests.length > 0
           ? `
-        <h4>Tests</h4>
-        <ul>
-          ${bill.bill.tests.map((item) => `<li>${item}</li>`).join("")}
-        </ul>
-      `
+              <h4>Tests</h4>
+              <ul>
+                  ${bill.tests
+                    .map((test) => `<li>${test.name} - ₹${test.price}</li>`)
+                    .join("")}
+              </ul>
+              `
           : ""
       }
       ${
-        bill.bill.otherCharges.length > 0
+        bill.otherCharges
           ? `
-        <h4>Other Charges</h4>
-        <ul>
-          ${bill.bill.otherCharges.map((item) => `<li>${item}</li>`).join("")}
-        </ul>
-      `
+              <h4>Other Charges</h4>
+              <ul>
+                  <li>Service Charges - ₹${bill.otherCharges}</li>
+              </ul>
+              `
           : ""
       }
       <h4>Total Amount:</h4>
-      <p id="billTotal">${bill.amount}</p>
-    </div>
-  `;
+      <p id="billTotal">₹${bill.amount}</p>
+  </div>
+`;
 
   billDetails.style.display = "block";
 }

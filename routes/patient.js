@@ -4,20 +4,20 @@ const Doctor = require("../models/Doctor");
 const Appointment = require("../models/Appointment");
 const Prescription = require("../models/Prescription");
 
-// Get available doctors by specialization
+
 router.get("/doctors/:specialization", async (req, res) => {
   try {
     const doctors = await Doctor.find({
       specialization: req.params.specialization,
       approved: true,
-      userId: { $ne: null }, // Only include doctors with a valid user reference
+      userId: { $ne: null }, 
     }).populate({
       path: "userId",
-      select: "name", // Only select the name field from User
-      model: "User", // Make sure this matches your User model name
+      select: "name", 
+      model: "User", 
     });
 
-    // Transform the data to include the name directly in the response
+    
     const doctorsWithNames = doctors.map((doctor) => ({
       ...doctor.toObject(),
       name: doctor.userId?.name || "Unknown",
@@ -29,7 +29,7 @@ router.get("/doctors/:specialization", async (req, res) => {
   }
 });
 
-// Get available slots for a doctor
+
 router.get("/slots/:doctorId", async (req, res) => {
   try {
     const doctor = await Doctor.findById(req.params.doctorId);
@@ -46,13 +46,13 @@ router.get("/slots/:doctorId", async (req, res) => {
   }
 });
 
-// Book appointment
+
 router.post("/appointments", async (req, res) => {
   try {
     const { patientId, doctorId, date, time, age, gender, reason, phone } =
       req.body;
 
-    // Create appointment
+    
     const appointment = new Appointment({
       patientId,
       doctorId,
@@ -66,7 +66,6 @@ router.post("/appointments", async (req, res) => {
     });
     await appointment.save();
 
-    // Mark slot as booked
     await Doctor.updateOne(
       {
         _id: doctorId,
@@ -82,7 +81,6 @@ router.post("/appointments", async (req, res) => {
   }
 });
 
-// Get patient appointments
 router.get("/appointments/:patientId", async (req, res) => {
   try {
     const appointments = await Appointment.find({
@@ -122,8 +120,8 @@ router.get("/prescriptions/bill/:patientId", async (req, res) => {
   try {
     const prescriptions = await Prescription.find({
       patientId: req.params.patientId,
-      bill: { $exists: true }, // Only prescriptions with bills
-    }).select("_id bill"); // Only return _id and bill fields
+      bill: { $exists: true }, 
+    }).select("_id bill"); 
 
     res.json(
       prescriptions.map((p) => ({
@@ -136,10 +134,10 @@ router.get("/prescriptions/bill/:patientId", async (req, res) => {
   }
 });
 
-// Delete appointment and restore doctor's availability
+
 router.delete("/appointments/:appointmentId", async (req, res) => {
   try {
-    // Find the appointment first to get the details before deletion
+    
     const appointment = await Appointment.findById(
       req.params.appointmentId
     ).populate({
@@ -151,10 +149,10 @@ router.delete("/appointments/:appointmentId", async (req, res) => {
       return res.status(404).json({ error: "Appointment not found" });
     }
 
-    // Delete the appointment
+    
     await Appointment.findByIdAndDelete(req.params.appointmentId);
 
-    // Restore the doctor's availability for that time slot
+    
     if (appointment.doctorId && appointment.date && appointment.time) {
       await Doctor.findByIdAndUpdate(appointment.doctorId._id, {
         $push: {
@@ -166,15 +164,6 @@ router.delete("/appointments/:appointmentId", async (req, res) => {
         },
       });
 
-      // Alternatively, if you want to mark the existing slot as available instead of adding a new one:
-      // await Doctor.findOneAndUpdate(
-      //   {
-      //     _id: appointment.doctorId._id,
-      //     "availableSlots.date": appointment.date,
-      //     "availableSlots.time": appointment.time
-      //   },
-      //   { $set: { "availableSlots.$.isBooked": false } }
-      // );
     }
 
     res.json({

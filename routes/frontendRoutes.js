@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 
-// Serve HTML files directly from the root (no separate 'public/views' folder)
 router.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "../public/landing.html"));
 });

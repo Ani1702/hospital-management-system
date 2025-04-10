@@ -3,7 +3,8 @@ const router = express.Router();
 const Appointment = require("../models/Appointment");
 const Prescription = require("../models/Prescription");
 const Doctor = require("../models/Doctor");
-// Get pending appointments
+const User = require("../models/User");
+
 router.get("/appointments/confirmed", async (req, res) => {
   try {
     const appointments = await Appointment.find({ status: "confirmed" })
@@ -30,14 +31,12 @@ router.get("/appointments/completed", async (req, res) => {
         model: "User",
       });
 
-    // Fetch prescription details for each appointment
     const appointmentsWithPrescriptions = await Promise.all(
       appointments.map(async (appointment) => {
         const prescription = await Prescription.findOne({
           appointmentId: appointment._id,
         }).select("medicines tests notes -_id");
 
-        // Convert to plain object and add prescription details
         const appointmentObj = appointment.toObject();
         appointmentObj.prescription = prescription || null;
 
@@ -51,7 +50,6 @@ router.get("/appointments/completed", async (req, res) => {
   }
 });
 
-// Check-in patient
 router.put("/appointments/:id/checkin", async (req, res) => {
   try {
     const appointment = await Appointment.findByIdAndUpdate(
@@ -69,22 +67,18 @@ router.put("/appointments/:id/checkin", async (req, res) => {
   }
 });
 
-// Checkout patient
-// Checkout patient with bill generation
 router.put("/appointments/:id/checkout", async (req, res) => {
   try {
     const { billAmount, medicines, tests, otherCharges, notes } = req.body;
 
-    // Validate required fields
     if (!billAmount || !medicines) {
       return res
         .status(400)
         .json({ error: "Bill amount and medicines are required" });
     }
 
-    // 1. Update Prescription with bill details
     const prescription = await Prescription.findOneAndUpdate(
-      { appointmentId: req.params.id }, // Match prescription by appointmentId
+      { appointmentId: req.params.id },
       {
         completedAt: new Date(),
         bill: {
@@ -93,7 +87,6 @@ router.put("/appointments/:id/checkout", async (req, res) => {
           tests: tests || [],
           otherCharges: otherCharges || 0,
         },
-        notes: notes || "",
       },
       { new: true }
     );
@@ -102,9 +95,8 @@ router.put("/appointments/:id/checkout", async (req, res) => {
       return res.status(404).json({ error: "Prescription not found" });
     }
 
-    // 2. Update Appointment status to "completed"
     const appointment = await Appointment.findByIdAndUpdate(
-      req.params.id, // Directly use the appointment _id
+      req.params.id,
       {
         status: "completed",
         completedAt: new Date(),
@@ -121,9 +113,6 @@ router.put("/appointments/:id/checkout", async (req, res) => {
   }
 });
 
-const User = require("../models/User");
-
-// Approve doctor
 router.put("/doctors/:id/approve", async (req, res) => {
   try {
     console.log(req.params);
@@ -145,10 +134,8 @@ router.put("/doctors/:id/approve", async (req, res) => {
 
 router.get("/doctors/pending", async (req, res) => {
   try {
-    // First find all doctors with approved: false
     const pendingDoctors = await Doctor.find({ approved: false });
 
-    // Then get their user details
     const pendingDoctorsWithDetails = await Promise.all(
       pendingDoctors.map(async (doctor) => {
         const user = await User.findById(doctor.userId);
@@ -156,7 +143,6 @@ router.get("/doctors/pending", async (req, res) => {
           _id: doctor._id,
           userId: doctor.userId,
           specialization: doctor.specialization,
-          // availableSlots: doctor.availableSlots,
           name: user.name,
           email: user.email,
           role: user.role,
@@ -170,12 +156,10 @@ router.get("/doctors/pending", async (req, res) => {
   }
 });
 
-router.get("/doctors/pending", async (req, res) => {
+router.get("/doctors/approved", async (req, res) => {
   try {
-    // First find all doctors with approved: false
     const pendingDoctors = await Doctor.find({ approved: true });
 
-    // Then get their user details
     const pendingDoctorsWithDetails = await Promise.all(
       pendingDoctors.map(async (doctor) => {
         const user = await User.findById(doctor.userId);

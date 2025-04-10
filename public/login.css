@@ -201,13 +201,3 @@ input {
   padding: 1rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .auth-container {
-    flex-direction: column;
-  }
-  .auth-info,
-  .auth-forms {
-    padding: 2rem;
-  }
-}

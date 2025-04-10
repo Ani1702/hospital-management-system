@@ -25,7 +25,6 @@
 
     <main class="main-content">
       <div class="auth-container">
-        <!-- Left Side - Info -->
         <div class="auth-info">
           <h2>Healthcare Portal</h2>
           <p>Sign in or register to access your account.</p>
@@ -105,10 +104,10 @@
                 type="text"
                 id="signup-name"
                 class="form-control"
-                placeholder="Dr. John Doe"
+                placeholder="John Doe"
                 required
                 pattern="^[a-zA-Z ]+"
-                title="Only letters and spaces allowed (e.g. Dr. John Doe)"
+                title="Only letters and spaces allowed"
               />
             </div>
             <div class="form-group">
@@ -221,7 +220,6 @@
           }
         });
 
-      // Validation
       function validateForm(form) {
         const inputs = Array.from(form.querySelectorAll("input, select"));
         for (const input of inputs) {
@@ -234,7 +232,7 @@
         return true;
       }
 
-      // Login submit
+      
       document
         .getElementById("loginForm")
         .addEventListener("submit", async (e) => {
@@ -264,7 +262,7 @@
           }
         });
 
-      // Signup submit
+
       document
         .getElementById("signupForm")
         .addEventListener("submit", async (e) => {

@@ -1,244 +1,163 @@
-// const mongoose = require("mongoose");
-// const User = require("./models/User");
-// const Doctor = require("./models/Doctor");
-
-// async function seedDoctors() {
-//   try {
-//     await mongoose.connect("mongodb://127.0.0.1:27017/hospitalDB", {
-//       useNewUrlParser: true,
-//       useUnifiedTopology: true,
-//     });
-//     console.log("Connected to MongoDB");
-
-//     // Clear existing data (optional)
-//     await User.deleteMany({ role: "doctor" });
-//     await Doctor.deleteMany({});
-//     console.log("Cleared existing doctor data");
-
-//     // Insert doctor users
-//     const userDocs = await User.insertMany([
-//       {
-//         username: "drsharma",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Rajesh Sharma",
-//         email: "dr.sharma@example.com",
-//         phone: "9876543210",
-//       },
-//       {
-//         username: "drpatel",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Priya Patel",
-//         email: "dr.patel@example.com",
-//         phone: "9876543211",
-//       },
-//       {
-//         username: "drverma",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Anil Verma",
-//         email: "dr.verma@example.com",
-//         phone: "9876543212",
-//       },
-//       {
-//         username: "drreddy",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Sunita Reddy",
-//         email: "dr.reddy@example.com",
-//         phone: "9876543213",
-//       },
-//       {
-//         username: "drkumar",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Vijay Kumar",
-//         email: "dr.kumar@example.com",
-//         phone: "9876543214",
-//       },
-//       {
-//         username: "drgupta",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Arun Gupta",
-//         email: "dr.gupta@example.com",
-//         phone: "9876543215",
-//       },
-//       {
-//         username: "drnaidu",
-//         password: "password123",
-//         role: "doctor",
-//         name: "Dr. Meera Naidu",
-//         email: "dr.naidu@example.com",
-//         phone: "9876543216",
-//       },
-//     ]);
-//     console.log("Inserted doctor users");
-
-//     // Insert doctor profiles with available slots
-//     await Doctor.insertMany([
-//       {
-//         userId: userDocs[0]._id, // Dr. Rajesh Sharma
-//         specialization: "Cardiology",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "10:00", isBooked: false },
-//           { date: new Date("2023-12-15"), time: "11:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "14:00", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "09:30", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[1]._id, // Dr. Priya Patel
-//         specialization: "Neurology",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "09:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "10:30", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "15:00", isBooked: false },
-//           { date: new Date("2023-12-18"), time: "11:00", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[2]._id, // Dr. Anil Verma
-//         specialization: "General Practitioner",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "08:00", isBooked: false },
-//           { date: new Date("2023-12-15"), time: "12:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "09:30", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "16:00", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[3]._id, // Dr. Sunita Reddy
-//         specialization: "Orthopedics",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-16"), time: "11:00", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "10:00", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "16:00", isBooked: false },
-//           { date: new Date("2023-12-18"), time: "14:30", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[4]._id, // Dr. Vijay Kumar
-//         specialization: "Pediatrics",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "13:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "10:00", isBooked: false },
-//           { date: new Date("2023-12-18"), time: "14:30", isBooked: false },
-//           { date: new Date("2023-12-19"), time: "09:00", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[5]._id, // Dr. Arun Gupta
-//         specialization: "Dermatology",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "14:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "15:30", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "11:30", isBooked: false },
-//           { date: new Date("2023-12-18"), time: "10:00", isBooked: false },
-//         ],
-//       },
-//       {
-//         userId: userDocs[6]._id, // Dr. Meera Naidu
-//         specialization: "Gynecology",
-//         approved: true,
-//         availableSlots: [
-//           { date: new Date("2023-12-15"), time: "16:00", isBooked: false },
-//           { date: new Date("2023-12-16"), time: "13:00", isBooked: false },
-//           { date: new Date("2023-12-17"), time: "10:30", isBooked: false },
-//           { date: new Date("2023-12-18"), time: "15:00", isBooked: false },
-//         ],
-//       },
-//     ]);
-//     console.log("Inserted doctor profiles with available slots");
-
-//     console.log("Database seeded successfully!");
-//   } catch (error) {
-//     console.error("Error seeding database:", error);
-//   } finally {
-//     mongoose.disconnect();
-//   }
-// }
-
-// // Run the seed function
-// seedDoctors();
-
 const mongoose = require("mongoose");
-const User = require("./models/User"); // Adjust path to your User model
-const Doctor = require("./models/Doctor"); // Adjust path to your Doctor model
+const User = require("./models/User");
+const Doctor = require("./models/Doctor");
 
-// List of random Indian names
-const indianNames = [
-  "Aarav Patel",
-  "Vihaan Sharma",
-  "Aditya Singh",
-  "Arjun Kumar",
-  "Reyansh Gupta",
-  "Mohammed Khan",
-  "Sai Reddy",
-  "Ishaan Mishra",
-  "Kabir Joshi",
-  "Dhruv Desai",
-  "Ananya Iyer",
-  "Diya Choudhary",
-  "Aadhya Nair",
-  "Ishita Malhotra",
-  "Myra Chatterjee",
-  "Kiara Saxena",
-  "Pari Mehra",
-  "Avni Banerjee",
-  "Riya Kapoor",
-  "Anika Trivedi",
+// Connect to MongoDB
+async function connectDB() {
+  try {
+    await mongoose.connect("mongodb://127.0.0.1:27017/hospitalDB", {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 10s
+    });
+    console.log("MongoDB connected successfully");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+}
+// Sample data
+const users = [
+  {
+    name: "Rohan Sharma",
+    email: "rohan.sharma@example.com",
+    password: "Doctor@123",
+    role: "doctor",
+    specialization: "Cardiology",
+    licenseNumber: "12345",
+  },
+  {
+    name: "Priya Gupta",
+    email: "priya.gupta@example.com",
+    password: "Doctor@123",
+    role: "doctor",
+    specialization: "Neurology",
+    licenseNumber: "67890",
+  },
+  {
+    name: "Amit Patel",
+    email: "amit.patel@example.com",
+    password: "Doctor@123",
+    role: "doctor",
+    specialization: "Pediatrics",
+    licenseNumber: "54321",
+  },
+  {
+    name: "Neha Singh",
+    email: "neha.singh@example.com",
+    password: "Doctor@123",
+    role: "doctor",
+    specialization: "Dermatology",
+    licenseNumber: "98765",
+  },
+  {
+    name: "Rajesh Kumar",
+    email: "rajesh.kumar@example.com",
+    password: "Patient@123",
+    role: "patient",
+  },
+  {
+    name: "Meena Iyer",
+    email: "meena.iyer@example.com",
+    password: "Patient@123",
+    role: "patient",
+  },
+  {
+    name: "Reception Desk",
+    email: "reception@example.com",
+    password: "Recep@123",
+    role: "receptionist",
+  },
 ];
 
-async function createUsersForDoctors() {
+// Function to generate random 5-digit license number
+function generateLicenseNumber() {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+}
+
+// Function to generate random available slots for April and May 2024
+function generateSlots() {
+  const slots = [];
+  const months = [4, 5]; // April and May
+  const daysInMonth = [30, 31]; // Days in April and May
+
+  for (let m = 0; m < months.length; m++) {
+    const month = months[m];
+    const days = daysInMonth[m];
+
+    // Generate 2-4 slots per month
+    const numSlots = Math.floor(Math.random() * 3) + 2;
+
+    for (let i = 0; i < numSlots; i++) {
+      const day = Math.floor(Math.random() * days) + 1;
+      const hour = Math.floor(Math.random() * 8) + 9; // Between 9 AM and 5 PM
+      const minute = Math.random() > 0.5 ? 0 : 30; // Either :00 or :30
+
+      const date = new Date(2024, month - 1, day);
+      const time = `${hour.toString().padStart(2, "0")}:${minute
+        .toString()
+        .padStart(2, "0")}`;
+
+      slots.push({
+        date,
+        time,
+        isBooked: false,
+      });
+    }
+  }
+
+  return slots;
+}
+
+async function seedDatabase() {
   try {
-    // Connect to your MongoDB
-    await mongoose.connect("mongodb://127.0.0.1:27017/hospitalDB", {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Connect to database first
+    await connectDB();
 
-    // Get all doctors with userId references
-    const doctors = await Doctor.find({ userId: { $exists: true } });
+    // Clear existing data
+    await User.deleteMany({});
+    await Doctor.deleteMany({});
 
-    for (const doctor of doctors) {
-      // Check if user already exists
-      const existingUser = await User.findById(doctor.userId);
-
-      if (!existingUser) {
-        // Create a new user
-        const randomName =
-          indianNames[Math.floor(Math.random() * indianNames.length)];
-        const email = `${randomName.split(" ")[0].toLowerCase()}@example.com`;
-
-        const newUser = new User({
-          _id: doctor.userId, // Use the same ID as referenced in Doctor
-          name: randomName,
-          email: email,
-          password: "Doctor@123", // Default password, doctors should change this
-          role: "doctor",
-        });
-
-        await newUser.save();
+    // Create users and doctors
+    for (const userData of users) {
+      // Check if email already exists
+      const existingUser = await User.findOne({ email: userData.email });
+      if (existingUser) {
         console.log(
-          `Created user ${randomName} for doctor ${doctor.specialization}`
+          `User with email ${userData.email} already exists, skipping...`
         );
+        continue;
+      }
+
+      // Create user
+      const user = new User({
+        name: userData.name,
+        email: userData.email,
+        password: userData.password,
+        role: userData.role,
+      });
+      await user.save();
+
+      // Create role-specific document
+      if (userData.role === "doctor") {
+        const doctor = new Doctor({
+          _id: user._id,
+          userId: user._id,
+          specialization: userData.specialization,
+          licenseNumber: userData.licenseNumber || generateLicenseNumber(),
+          approved: true,
+          availableSlots: generateSlots(),
+        });
+        await doctor.save();
       }
     }
 
-    console.log("Finished creating users for doctors");
+    console.log("Database seeded successfully!");
+    await mongoose.disconnect();
     process.exit(0);
   } catch (error) {
-    console.error("Error creating users:", error);
+    console.error("Error seeding database:", error);
+    await mongoose.disconnect();
     process.exit(1);
   }
 }
 
-createUsersForDoctors();
+seedDatabase();
